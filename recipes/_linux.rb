@@ -40,10 +40,16 @@ when "debian"
 when "rhel"
   include_recipe "yum"
 
+  if node.platform == "amazon"
+    rhel_version = "6" # Is this correct?
+  else
+    rhel_version = node['platform_version'].to_i
+  end
+
   repo = yum_repository "sensu" do
     description "sensu monitoring"
     repo = node.sensu.use_unstable_repo ? "yum-unstable" : "yum"
-    url "#{node.sensu.yum_repo_url}/#{repo}/el/#{node['platform_version'].to_i}/$basearch/"
+    url "#{node.sensu.yum_repo_url}/#{repo}/el/#{rhel_version}/$basearch/"
     action :add
   end
   repo.gpgcheck(false) if repo.respond_to?(:gpgcheck)
